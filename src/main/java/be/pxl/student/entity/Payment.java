@@ -6,6 +6,10 @@ import java.util.Date;
 
 public class Payment {
 
+    public Payment() {
+
+    }
+
     private LocalDateTime date;
     private float amount;
     private String currency;

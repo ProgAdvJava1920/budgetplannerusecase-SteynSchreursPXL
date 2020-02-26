@@ -2,61 +2,91 @@ package be.pxl.student.util;
 
 import be.pxl.student.entity.Account;
 import be.pxl.student.entity.Payment;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Util class to import csv file
  */
 public class BudgetPlannerImporter {
-    private String fileName;
     private Account account;
 
-    public BudgetPlannerImporter(String fileName) {
-        this.fileName = fileName;
+    public BudgetPlannerImporter() { //src/main/resources/account_payments.csv
     }
 
-    public Account readFile() {
+    public List<Payment> readFile(Path pathFileToRead){
+        Path path = Paths.get(String.valueOf(pathFileToRead));
         List<Payment> payments = new ArrayList<>();
-        Path path = Paths.get(fileName);
+
         try (BufferedReader reader = Files.newBufferedReader(path)) {
-            while (reader.readLine() != null) {
-                String[] splittedString = reader.readLine().split(",");
+            reader.readLine();
+            String line = null;
+
+            while ((line = reader.readLine()) != null ) {
                 if (account == null) {
-                    account = createAccount(splittedString);
+                    account = getAccount(line);
+                    Payment newPayment = getPayment(line);
+                    payments.add(newPayment);
+                } else {
+                    Payment newPayment = getPayment(line);
+                    payments.add(newPayment);
                 }
-                Payment payment = createPayment(splittedString);
-                payments.add(payment);
             }
+            addPaymentsToAccount(payments);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return payments;
+    }
+
+    private void addPaymentsToAccount(List<Payment> payments) {
         account.setPayments(payments);
-        return account;
     }
 
-    private Account createAccount(String[] lines) {
-        Account account = new Account();
-        account.setName(lines[0]);
-        account.setIBAN(lines[1]);
-        return account;
-    }
+    public Payment getPayment(String line) {
+        Payment payment= new Payment();
+        String[] lines = line.split(",");
 
-    private Payment createPayment(String[] lines) {
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
         LocalDateTime dateTime = LocalDateTime.parse(lines[3], formatter);
+
         float amount = Float.parseFloat(lines[4]);
-        return new Payment(dateTime, amount, lines[5], lines[6]);
+        String currency = lines[5];
+        String detail = lines[6];
+
+        payment.setDate(dateTime);
+        payment.setAmount(amount);
+        payment.setCurrency(currency);
+        payment.setDetail(detail);
+
+        return payment;
     }
+
+    public Account getAccount(String line) {
+        String[] lines = line.split(",");
+        account = new Account();
+        account.setIBAN(lines[1]);
+        account.setName(lines[0]);
+        return account;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "IBAN='" + account.getIBAN() + '\'' +
+                ", name='" + account.getName() + '\'' +
+                ", payments=[" + account.getPayments().stream().map(Payment::toString).collect(Collectors.joining(",")) + "]}";
+    }
+
 }
