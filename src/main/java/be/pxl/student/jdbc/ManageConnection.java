@@ -1,14 +1,14 @@
 package be.pxl.student.jdbc;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.logging.LogManager;
 
-public class Connection {
+public class ManageConnection {
     private String url;
     private String username = "root";
     private String password = "root";
 
-    public Connection(String url) {
+    public void Connection(String url) {
         this.url = url;
     }
 
