@@ -1,11 +1,13 @@
 package be.pxl.student.entity;
 
+import javax.persistence.Id;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Account {
 
     private String IBAN;
+    private int id;
     private String name;
     private List<Payment> payments;
 
@@ -19,6 +21,14 @@ public class Account {
 
     public String getName() {
         return name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {
@@ -40,4 +50,5 @@ public class Account {
                 ", name='" + name + '\'' +
                 ", payments=[" + payments.stream().map(Payment::toString).collect(Collectors.joining(",")) + "]}";
     }
+
 }
