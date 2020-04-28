@@ -1,15 +1,31 @@
 package be.pxl.student.entity;
 
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Account {
 
-    private String IBAN;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(unique = true)
+    private String IBAN;
+
     private String name;
-    private List<Payment> payments;
+
+    @OneToMany(mappedBy = "account")
+    private List<Payment> payments = new ArrayList<>();
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getIBAN() {
         return IBAN;
@@ -21,14 +37,6 @@ public class Account {
 
     public String getName() {
         return name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setName(String name) {
@@ -50,5 +58,4 @@ public class Account {
                 ", name='" + name + '\'' +
                 ", payments=[" + payments.stream().map(Payment::toString).collect(Collectors.joining(",")) + "]}";
     }
-
 }
